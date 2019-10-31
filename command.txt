@@ -14,3 +14,5 @@ ensuite si tu veux re modifier des shits
 2- git add .
 3- git commit -m "changed spi_master_TB"
 4- git push origin master
+
+En tout temps, faire "git status" t'indique la solution
