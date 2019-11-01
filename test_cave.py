@@ -21,4 +21,4 @@ greg.down()
 
 # draw the picture, using angle 60 and segment length 5
 draw_l_system(greg, instruction_string, 22.5, 5)
-input("Press Escape to continue...")
+turtle.mainloop()
