@@ -20,8 +20,8 @@ clear all, clc
 dt=0.01;
 dx=0.05;
 dy=dx;
-L=25;
-H=25;
+L=20;
+H=20;
 x_c=5;
 y_c=0;
 wx=2.5;
@@ -51,6 +51,7 @@ epsilon=2; %épaisseur des fentes
 xp1=ceil(PF/dx)-epsilon/2;
 xp2=ceil(PF/dx)+epsilon/2; 
 
+potentiel(ceil(Ny/2)-5:ceil(Ny/2)+5,xp1:xp2)=10^10;
 
 % paramètre des fentes (taille en nombre de pas dx)
 
@@ -68,9 +69,9 @@ line_1=20; %distance en u.a.
 
 % la barrière est modélisée comme un une fonction échelon de grande
 % amplitude 10^10 (puits infini)
-potentiel(:,xp1:xp2)=10^10*ones(Ny,xp2-xp1+1);
-potentiel(yp1:yp2,xp1:xp2)=0;
-potentiel(yp3:yp4,xp1:xp2)=0;
+%potentiel(:,xp1:xp2)=10^10*ones(Ny,xp2-xp1+1);
+% potentiel(yp1:yp2,xp1:xp2)=0;
+% potentiel(yp3:yp4,xp1:xp2)=0;
 
 %appel de la fonction pour initialiser les matrices des coefficients
 [M1,M2]=crank_nicolson_R_2d(dt,dx,Nx,Ny,potentiel);
@@ -89,7 +90,7 @@ width=1600;
 height=700;
 h = figure('position',[x0,y0,width,height],'visible', 'off');
 axis tight manual % this ensures that getframe() returns a consistent size
-filename = 'modelisation_2_fentes_a=0,75_b=1,25_e=0,1_25x25_k=20_wx=2,5_wy=2,5_dx=0,05_dt=0,01.mp4';
+filename = 'test.mp4';
 v = VideoWriter(filename,'MPEG-4');
 v.FrameRate = 6;
 v.Quality = 100;
