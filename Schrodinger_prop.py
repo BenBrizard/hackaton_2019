@@ -173,6 +173,7 @@ def gauss_k(k,a,x0,k0):
             * np.exp(-0.5 * (a * (k - k0)) ** 2 - 1j * (k - k0) * x0))
 
 
+
 ######################################################################
 # Utility functions for running the animation
 
@@ -203,21 +204,24 @@ hbar = 1.0   # planck's constant
 m = 1.9      # particle mass
 
 # specify range in x coordinate
-N = 2 ** 11
+N = 3000
 dx = 0.1
-x = dx * (np.arange(N) - 0.5 * N)
+x = dx * (np.arange(N))
 
 # specify potential
-V0 = 1.5
-L = hbar / np.sqrt(2 * m * V0)
-a = 3 * L
-x0 = -60 * L
+V0 = 0
+#L = hbar / np.sqrt(2 * m * V0)
+L = 0
+#a = 3 * L
+a = 0
+x0 = 50
 V_x = square_barrier(x, a, V0)
-V_x[x < -98] = 1E6
-V_x[x > 98] = 1E6
+#V_x[x < -98] = 1E6
+#V_x[x > 98] = 1E6
 
 # specify initial momentum and quantities derived from it
-p0 = np.sqrt(2 * m * 0.2 * V0)
+#p0 = np.sqrt(2 * m * 0.2 * V0)
+p0  = 1
 dp2 = p0 * p0 * 1./80
 d = hbar / np.sqrt(2 * dp2)
 
@@ -233,18 +237,26 @@ S = Schrodinger(x=x,
                 m=m,
                 k0=-28)
 
+S2 = Schrodinger(x=x,
+                psi_x0=psi_x0,
+                V_x=V_x,
+                hbar=hbar,
+                m=m,
+                k0=-28)
+
 ######################################################################
 # Set up plot
-fig = pl.figure()
+fig = pl.figure(figsize=(20,10))
 
 # plotting limits
-xlim = (-100, 100)
-klim = (-5, 5)
+xlim1 = (0, 100)
+xlim2 = (100,200)
+xlim3 = (200,300)
 
 # top axes show the x-space data
 ymin = 0
-ymax = V0
-ax1 = fig.add_subplot(211, xlim=xlim,
+ymax = 1.5
+ax1 = fig.add_subplot(334, xlim=xlim1,
                       ylim=(ymin - 0.2 * (ymax - ymin),
                             ymax + 0.2 * (ymax - ymin)))
 psi_x_line, = ax1.plot([], [], c='r', label=r'$|\psi(x)|$')
@@ -257,44 +269,49 @@ ax1.legend(prop=dict(size=12))
 ax1.set_xlabel('$x$')
 ax1.set_ylabel(r'$|\psi(x)|$')
 
-# bottom axes show the k-space data
-ymin = abs(S.psi_k).min()
-ymax = abs(S.psi_k).max()
-ax2 = fig.add_subplot(212, xlim=klim,
+
+ax2 = fig.add_subplot(332, xlim=xlim2,
                       ylim=(ymin - 0.2 * (ymax - ymin),
                             ymax + 0.2 * (ymax - ymin)))
-psi_k_line, = ax2.plot([], [], c='r', label=r'$|\psi(k)|$')
-
-p0_line1 = ax2.axvline(-p0 / hbar, c='k', ls=':', label=r'$\pm p_0$')
-p0_line2 = ax2.axvline(p0 / hbar, c='k', ls=':')
-mV_line = ax2.axvline(np.sqrt(2 * V0) / hbar, c='k', ls='--',
-                      label=r'$\sqrt{2mV_0}$')
-ax2.legend(prop=dict(size=12))
-ax2.set_xlabel('$k$')
-ax2.set_ylabel(r'$|\psi(k)|$')
+psi_x_line2, = ax2.plot([], [], c='r', label=r'$|\psi(x)|$')
 
 V_x_line.set_data(S.x, S.V_x)
+
+
+ax3 = fig.add_subplot(338, xlim=xlim2,
+                      ylim=(ymin - 0.2 * (ymax - ymin),
+                            ymax + 0.2 * (ymax - ymin)))
+psi_x_line3, = ax3.plot([], [], c='r', label=r'$|\psi(x)|$')
+
+
+ax4 = fig.add_subplot(336, xlim=xlim3,
+                      ylim=(ymin - 0.2 * (ymax - ymin),
+                            ymax + 0.2 * (ymax - ymin)))
+psi_x_line4, = ax4.plot([], [], c='r', label=r'$|\psi(x)|$')
 
 ######################################################################
 # Animate plot
 def init():
     psi_x_line.set_data([], [])
-    V_x_line.set_data([], [])
+    psi_x_line2.set_data([], [])
+    psi_x_line3.set_data([], [])
+    psi_x_line4.set_data([], [])
+    
     center_line.set_data([], [])
 
-    psi_k_line.set_data([], [])
     title.set_text("")
-    return (psi_x_line, V_x_line, center_line, psi_k_line, title)
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line2, center_line, title)
 
 def animate(i):
     S.time_step(dt, N_steps)
     psi_x_line.set_data(S.x, 4 * abs(S.psi_x))
-    V_x_line.set_data(S.x, S.V_x)
+    psi_x_line2.set_data(S.x, 4 * abs(S.psi_x))
+    psi_x_line3.set_data(S.x, 4 * abs(S.psi_x))
+    psi_x_line4.set_data(S.x, 4 * abs(S.psi_x))
+    
     center_line.set_data(2 * [x0 + S.t * p0 / m], [0, 1])
 
-    psi_k_line.set_data(S.k, abs(S.psi_k))
-    title.set_text("t = %.2f" % S.t)
-    return (psi_x_line, V_x_line, center_line, psi_k_line, title)
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, center_line, title)
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
