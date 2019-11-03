@@ -19,7 +19,7 @@ class Schrodinger(object):
     Class which implements a numerical solution of the time-dependent
     Schrodinger equation for an arbitrary potential
     """
-    def __init__(self, x, psi_x0, V_x,
+    def __init__(self, x, psi_x0, V_x, A,
                  k0 = None, hbar=1, m=1, t0=0.0):
         """
         Parameters
@@ -56,6 +56,7 @@ class Schrodinger(object):
         self.hbar = hbar
         self.m = m
         self.t = t0
+        self.A = A
         self.dt_ = None
         self.N = len(x)
         self.dx = self.x[1] - self.x[0]
@@ -109,9 +110,9 @@ class Schrodinger(object):
             self.k_evolve = np.exp(-0.5 * 1j * self.hbar /
                                     self.m * (self.k * self.k) * dt)
     
+    dt = property(_get_dt, _set_dt)
     psi_x = property(_get_psi_x, _set_psi_x)
     psi_k = property(_get_psi_k, _set_psi_k)
-    dt = property(_get_dt, _set_dt)
 
     def compute_k_from_x(self):
         self.psi_mod_k = fft(self.psi_mod_x)
@@ -143,6 +144,7 @@ class Schrodinger(object):
             self.psi_mod_k *= self.k_evolve
             self.compute_x_from_k()
             self.psi_mod_x *= self.x_evolve
+            
 
         self.compute_k_from_x()
         self.psi_mod_k *= self.k_evolve
@@ -153,6 +155,7 @@ class Schrodinger(object):
         self.compute_k_from_x()
 
         self.t += dt * Nsteps
+        
 
 
 ######################################################################
@@ -200,12 +203,14 @@ t_max = 120
 frames = int(t_max / float(N_steps * dt))
 
 # specify constants
-hbar = 1.0   # planck's constant
-m = 1.9      # particle mass
+hbar = 1  # planck's constant
+m = 1  # particle mass
+q = 1
+
 
 # specify range in x coordinate
-N = 3000
-dx = 0.1
+dx = 0.2
+N = int(300/dx)
 x = dx * (np.arange(N))
 
 # specify potential
@@ -216,8 +221,8 @@ L = 0
 a = 0
 x0 = 50
 V_x = square_barrier(x, a, V0)
-#V_x[x < -98] = 1E6
-#V_x[x > 98] = 1E6
+V_x[x < 2] = 1E6
+#V_x[x > 298] = 1E6
 
 # specify initial momentum and quantities derived from it
 #p0 = np.sqrt(2 * m * 0.2 * V0)
@@ -229,10 +234,21 @@ k0 = p0 / hbar
 v0 = p0 / m
 psi_x0 = gauss_x(x, d, x0, k0)
 
+#phi = np.pi/(100/dx)
+#A = 1/(4*4)
+#A = 1/(4*np.pi**2)
+A = np.pi/48
+
+A1 = np.zeros(N)
+A1[range(int(100/dx),int(200/dx))] = A
+A2 = np.zeros(N)
+A2[range(int(100/dx),int(200/dx))] = -A
+
 # define the Schrodinger object which performs the calculations
 S = Schrodinger(x=x,
                 psi_x0=psi_x0,
                 V_x=V_x,
+                A=A1,
                 hbar=hbar,
                 m=m,
                 k0=-28)
@@ -240,6 +256,7 @@ S = Schrodinger(x=x,
 S2 = Schrodinger(x=x,
                 psi_x0=psi_x0,
                 V_x=V_x,
+                A=A2,
                 hbar=hbar,
                 m=m,
                 k0=-28)
@@ -260,7 +277,9 @@ ax1 = fig.add_subplot(334, xlim=xlim1,
                       ylim=(ymin - 0.2 * (ymax - ymin),
                             ymax + 0.2 * (ymax - ymin)))
 psi_x_line, = ax1.plot([], [], c='r', label=r'$|\psi(x)|$')
-V_x_line, = ax1.plot([], [], c='k', label=r'$V(x)$')
+psi_x_line_imag, = ax1.plot([], [], c='b', label=r'$V(x)$')
+psi_x_line_abs, = ax1.plot([], [], c='k', label=r'$V(x)$')
+
 center_line = ax1.axvline(0, c='k', ls=':',
                           label = r"$x_0 + v_0t$")
 
@@ -274,44 +293,85 @@ ax2 = fig.add_subplot(332, xlim=xlim2,
                       ylim=(ymin - 0.2 * (ymax - ymin),
                             ymax + 0.2 * (ymax - ymin)))
 psi_x_line2, = ax2.plot([], [], c='r', label=r'$|\psi(x)|$')
+psi_x_line2_imag, = ax2.plot([], [], c='b', label=r'$V(x)$')
+psi_x_line2_abs, = ax2.plot([], [], c='k', label=r'$V(x)$')
 
-V_x_line.set_data(S.x, S.V_x)
 
 
 ax3 = fig.add_subplot(338, xlim=xlim2,
                       ylim=(ymin - 0.2 * (ymax - ymin),
                             ymax + 0.2 * (ymax - ymin)))
 psi_x_line3, = ax3.plot([], [], c='r', label=r'$|\psi(x)|$')
+psi_x_line3_imag, = ax3.plot([], [], c='b', label=r'$V(x)$')
+psi_x_line3_abs, = ax3.plot([], [], c='k', label=r'$V(x)$')
 
 
 ax4 = fig.add_subplot(336, xlim=xlim3,
                       ylim=(ymin - 0.2 * (ymax - ymin),
                             ymax + 0.2 * (ymax - ymin)))
 psi_x_line4, = ax4.plot([], [], c='r', label=r'$|\psi(x)|$')
+psi_x_line4_imag, = ax4.plot([], [], c='b', label=r'$V(x)$')
+psi_x_line4_abs, = ax4.plot([], [], c='k', label=r'$V(x)$')
+
+ax5 = fig.add_subplot(335, xlim=xlim2,
+                      ylim=(ymin - 0.2 * (ymax - ymin),
+                            ymax + 0.2 * (ymax - ymin)))
+psi_x_line5, = ax5.plot([], [], c='b', label=r'$|\psi(x)|$')
+psi_x_line5_imag, = ax5.plot([], [], c='r', label=r'$V(x)$')
 
 ######################################################################
 # Animate plot
 def init():
     psi_x_line.set_data([], [])
+    psi_x_line_imag.set_data([], [])
+    psi_x_line_abs.set_data([], [])
     psi_x_line2.set_data([], [])
+    psi_x_line2_imag.set_data([], [])
+    psi_x_line2_abs.set_data([], [])
     psi_x_line3.set_data([], [])
+    psi_x_line3_imag.set_data([], [])
+    psi_x_line3_abs.set_data([], [])
     psi_x_line4.set_data([], [])
+    psi_x_line4_imag.set_data([], [])
+    psi_x_line4_abs.set_data([], [])
+    psi_x_line5.set_data([], [])
+    psi_x_line5_imag.set_data([], [])
     
     center_line.set_data([], [])
 
     title.set_text("")
-    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line2, center_line, title)
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line5_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 def animate(i):
     S.time_step(dt, N_steps)
-    psi_x_line.set_data(S.x, 4 * abs(S.psi_x))
-    psi_x_line2.set_data(S.x, 4 * abs(S.psi_x))
-    psi_x_line3.set_data(S.x, 4 * abs(S.psi_x))
-    psi_x_line4.set_data(S.x, 4 * abs(S.psi_x))
+    S2.time_step(dt, N_steps)
+    
+    #S.psi_x = np.multiply(S.psi_x,np.exp(1j*q*S.A*S.dx/hbar))
+    #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*q*S2.A*S2.dx/hbar))
+    S.psi_x = np.multiply(S.psi_x,np.exp(1j*S.A*S.dt*S.k*q/S.m))
+    S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*S2.A*S2.dt*S2.k*q/S2.m))
+    
+    #S.psi_x = np.multiply(S.psi_x,np.exp(1j*phi1))
+    #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*phi2))
+    
+    psi_x_line.set_data(S.x, np.real(S.psi_x+S2.psi_x))
+    psi_x_line_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
+    psi_x_line_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
+    psi_x_line2.set_data(S.x, np.real(S.psi_x))
+    psi_x_line2_imag.set_data(S.x, np.imag(S.psi_x))
+    psi_x_line2_abs.set_data(S.x, abs(S.psi_x))
+    psi_x_line3.set_data(S.x, np.real(S2.psi_x))
+    psi_x_line3_imag.set_data(S.x, np.imag(S2.psi_x))
+    psi_x_line3_abs.set_data(S.x, abs(S2.psi_x))
+    psi_x_line4.set_data(S.x, np.real(S.psi_x+S2.psi_x))
+    psi_x_line4_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
+    psi_x_line4_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
+    psi_x_line5.set_data(S.x, np.real(S.psi_x))
+    psi_x_line5_imag.set_data(S.x, np.real(S2.psi_x))
     
     center_line.set_data(2 * [x0 + S.t * p0 / m], [0, 1])
 
-    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, center_line, title)
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line5_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
