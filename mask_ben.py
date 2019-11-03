@@ -8,9 +8,14 @@ Created on Sat Nov  2 21:37:12 2019
 
 
 import numpy as np
-
+import random
 import math
 import matplotlib.pyplot as plt
+
+
+
+
+
 def create_circular_mask(h, w, center=None, radius=None):
 
     if center is None: # use the middle of the image
@@ -41,7 +46,38 @@ mask=(mask3) & (mask2)
 exemple[mask] = 0
 
 
+angle=np.zeros((200,200))
+for i in range(0,200):
+    for j in range (0,200):
+        if mask[i,j]==True:
+            try:
+                ang=np.arctan2((100-i),(j-100))
+                angle[i,j]=ang
+                if i>100:
+                    angle[i,j]=ang+2*np.pi
+                    
+            except ZeroDivisionError as error:
+                if 100-i>=0:
+                    angle[i,j]=np.pi/2
+                elif 100-i<0:
+                    angle[i,j]=np.pi/2
+        
+                    
+                    
 
-plt.imshow(exemple);
-plt.colorbar()
+
+
+intensity=np.zeros((200,200))
+for i in range(0,200):
+    for j in range (0,200):
+        if mask[i,j]==True:
+            intensity[i,j]=random.randint(0, 10)           
+         
+
+            
+
+plt.imshow(angle);
+cbar=plt.colorbar()
+
 plt.show()
+
