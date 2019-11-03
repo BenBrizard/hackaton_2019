@@ -11,7 +11,7 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
-
+import copy
 
 
 
@@ -62,21 +62,30 @@ for i in range(0,200):
                 elif 100-i<0:
                     angle[i,j]=np.pi/2
         
-                    
-                    
-
-
-
+plt.imshow(angle);
+cbar=plt.colorbar()
 intensity=np.zeros((200,200))
-for i in range(0,200):
-    for j in range (0,200):
-        if mask[i,j]==True:
-            intensity[i,j]=random.randint(0, 10)           
+plt.show()                    
+color=np.random.rand(26)  
+color=np.linspace(25,0,26)                  
+vec_intervalle=np.linspace(0,2*np.pi,26)
+for i in range(0,25):
+    mask1=angle <= vec_intervalle[i+1]
+    mask2=angle >= vec_intervalle[i]
+    mask=(mask1) & (mask2)
+    intensity[mask]=color[i]
+
+
+#intensity=np.zeros((200,200))
+#for i in range(0,200):
+#    for j in range (0,200):
+#        if mask[i,j]==True:
+#            intensity[i,j]=random.randint(0, 10)           
          
 
             
 
-plt.imshow(angle);
+plt.imshow(intensity);
 cbar=plt.colorbar()
 
 plt.show()
