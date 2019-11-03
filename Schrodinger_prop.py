@@ -381,11 +381,11 @@ def animate(i):
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate,init_func=init,
-                               frames=frames, interval=1, blit=True)
+                               frames=frames, interval=30, blit=True)
 
 
 # uncomment the following line to save the video in mp4 format.  This
 # requires either mencoder or ffmpeg to be installed on your system
 
-#anim.save('schrodinger_sphere.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
+#anim.save('schrodinger_rect_fin.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
 plt.show()

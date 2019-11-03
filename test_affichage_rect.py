@@ -4,17 +4,17 @@ import matplotlib.pyplot as plt
 def matriceIntensite(xx,yy,psi1,psi2) :
     data=np.zeros((xx,yy))
 
-    for i in range(yy//3,2*yy//3):
-        for j in range(0,xx//3):
+    for i in range(int(0.4*yy),int(0.6*yy)):
+        for j in range(0,int(0.3*xx)):
             data[i,j] = abs(psi1[j] + psi2[j])
-    for i in range(0,yy//3):
-        for j in range(xx//3,2*xx//3):
+    for i in range(int(0.2*yy),int(0.4*yy)):
+        for j in range(int(0.3*xx),int(0.6*xx)):
             data[i,j] = abs(psi1[j])
-    for i in range(2*yy//3,yy):
-        for j in range(xx//3,2*xx//3):
+    for i in range(int(0.6*yy),int(0.8*yy)):
+        for j in range(int(0.3*xx),int(0.6*xx)):
             data[i,j] = abs(psi2[j])
-    for i in range(yy//3,2*yy//3):
-        for j in range(2*xx//3,xx):
+    for i in range(int(0.4*yy),int(0.6*yy)):
+        for j in range(int(0.6*xx),xx):
             data[i,j] = abs(psi1[j] + psi2[j])
     return data
 #
