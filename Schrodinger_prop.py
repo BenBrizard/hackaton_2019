@@ -12,6 +12,7 @@ import numpy as np
 from matplotlib import pyplot as pl
 from matplotlib import animation
 from scipy.fftpack import fft,ifft
+from affichage_anneau import *
 
 
 class Schrodinger(object):
@@ -95,9 +96,9 @@ class Schrodinger(object):
                                         * self.dk * np.arange(self.N))
 
     def _get_psi_k(self):
-        return self.psi_mod_k * np.exp(-1j * self.x[0] * 
+        return self.psi_mod_k * np.exp(-1j * self.x[0] *
                                         self.dk * np.arange(self.N))
-    
+
     def _get_dt(self):
         return self.dt_
 
@@ -109,7 +110,7 @@ class Schrodinger(object):
             self.x_evolve = self.x_evolve_half * self.x_evolve_half
             self.k_evolve = np.exp(-0.5 * 1j * self.hbar /
                                     self.m * (self.k * self.k) * dt)
-    
+
     dt = property(_get_dt, _set_dt)
     psi_x = property(_get_psi_x, _set_psi_x)
     psi_k = property(_get_psi_k, _set_psi_k)
@@ -144,7 +145,7 @@ class Schrodinger(object):
             self.psi_mod_k *= self.k_evolve
             self.compute_x_from_k()
             self.psi_mod_x *= self.x_evolve
-            
+
 
         self.compute_k_from_x()
         self.psi_mod_k *= self.k_evolve
@@ -155,7 +156,7 @@ class Schrodinger(object):
         self.compute_k_from_x()
 
         self.t += dt * Nsteps
-        
+
 
 
 ######################################################################
@@ -164,7 +165,7 @@ class Schrodinger(object):
 def gauss_x(x, a, x0, k0):
     """
     a gaussian wave packet of width a, centered at x0, with momentum k0
-    """ 
+    """
     return ((a * np.sqrt(np.pi)) ** (-0.5)
             * np.exp(-0.5 * ((x - x0) * 1. / a) ** 2 + 1j * x * k0))
 
@@ -313,11 +314,13 @@ psi_x_line4, = ax4.plot([], [], c='r', label=r'$|\psi(x)|$')
 psi_x_line4_imag, = ax4.plot([], [], c='b', label=r'$V(x)$')
 psi_x_line4_abs, = ax4.plot([], [], c='k', label=r'$V(x)$')
 
-ax5 = fig.add_subplot(335, xlim=xlim2,
-                      ylim=(ymin - 0.2 * (ymax - ymin),
-                            ymax + 0.2 * (ymax - ymin)))
-psi_x_line5, = ax5.plot([], [], c='b', label=r'$|\psi(x)|$')
-psi_x_line5_imag, = ax5.plot([], [], c='r', label=r'$V(x)$')
+#ax5 = fig.add_subplot(335, xlim=xlim2,
+#                      ylim=(ymin - 0.2 * (ymax - ymin),
+#                            ymax + 0.2 * (ymax - ymin)))
+ax5 = fig.add_subplot(335)
+#psi_x_line5 = ax5.imshow(np.zeros((1500,1500)))
+psi_x_line5 = ax5.pcolormesh(np.zeros((15,15)))
+#psi_x_line5_imag, = ax5.plot([], [], c='r', label=r'$V(x)$')
 
 ######################################################################
 # Animate plot
@@ -334,26 +337,27 @@ def init():
     psi_x_line4.set_data([], [])
     psi_x_line4_imag.set_data([], [])
     psi_x_line4_abs.set_data([], [])
-    psi_x_line5.set_data([], [])
-    psi_x_line5_imag.set_data([], [])
-    
+    #psi_x_line5.set_data([], [])
+    #psi_x_line5_imag.set_data([], [])
+    psi_x_line5.set_array(np.array(15))
+
     center_line.set_data([], [])
 
     title.set_text("")
-    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line5_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 def animate(i):
     S.time_step(dt, N_steps)
     S2.time_step(dt, N_steps)
-    
+    xv, yv = np.meshgrid(x, x)
     #S.psi_x = np.multiply(S.psi_x,np.exp(1j*q*S.A*S.dx/hbar))
     #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*q*S2.A*S2.dx/hbar))
     S.psi_x = np.multiply(S.psi_x,np.exp(1j*S.A*S.dt*S.k*q/S.m))
     S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*S2.A*S2.dt*S2.k*q/S2.m))
-    
+    img = marde_a_ben(S.psi_x,S2.psi_x) ;
     #S.psi_x = np.multiply(S.psi_x,np.exp(1j*phi1))
     #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*phi2))
-    
+
     psi_x_line.set_data(S.x, np.real(S.psi_x+S2.psi_x))
     psi_x_line_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
     psi_x_line_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
@@ -366,16 +370,16 @@ def animate(i):
     psi_x_line4.set_data(S.x, np.real(S.psi_x+S2.psi_x))
     psi_x_line4_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
     psi_x_line4_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
-    psi_x_line5.set_data(S.x, np.real(S.psi_x))
-    psi_x_line5_imag.set_data(S.x, np.real(S2.psi_x))
-    
+    psi_x_line5.set_array(img.ravel())
+    #psi_x_line5_imag.set_data(S.x, np.real(S2.psi_x))
+
     center_line.set_data(2 * [x0 + S.t * p0 / m], [0, 1])
 
-    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line5_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=frames, interval=30, blit=True)
+                               frames=frames, interval=1, blit=True)
 
 
 # uncomment the following line to save the video in mp4 format.  This
