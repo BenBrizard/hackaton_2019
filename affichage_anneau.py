@@ -28,7 +28,7 @@ def marde_a_ben(v1,v2,length) :
     centerDown=3*array_length//2-largeur
     outer = array_length//2;
     inner = outer - largeur;
-    data = np.zeros((3*array_length, 3*array_length), dtype=np.uint8)
+    data = np.zeros((3*array_length, 3*array_length))
 
     angle_array=np.linspace(0,2*np.pi,array_length);
 
@@ -107,6 +107,7 @@ def marde_a_ben(v1,v2,length) :
                     minimum = np.min(abs(angle[i,j]-angle_array));
                     index_angle = np.where(abs(angle[i,j]-angle_array) == minimum)[0];
                     data[i,j]=abs(v2[index_angle+array_length])
+
                 elif(masque_tot[i,j]==True and i<center):
 
                     try:
@@ -125,13 +126,13 @@ def marde_a_ben(v1,v2,length) :
                     minimum = np.min(abs(angle[i,j]-angle_array));
                     index_angle = np.where(abs((angle[i,j]-angle_array)) == minimum)[0];
                     data[i,j]=abs(v1[index_angle+array_length])
+
                 elif(j >=2*array_length):
                        # PUT DATA_Rigth HERE !!!!
-                    #data[i,j]=int(viridis(0)[0]);
                     data[i,j] = abs(v1[j] + v2[j])
 
                 else:
-                    #data[i,j]=int(viridis(0)[0]);
+#                    data[i,j]=int(viridis(0)[0]);
                     data[i,j]=0
 
             #ligne fin
@@ -146,7 +147,7 @@ def marde_a_ben(v1,v2,length) :
 
                     except ZeroDivisionError as error:
                          if center-i>=0:
-                             
+
                              angle[i,j]=np.pi/2
                          elif center-i<0:
                              angle[i,j]=np.pi/2
@@ -154,6 +155,7 @@ def marde_a_ben(v1,v2,length) :
                     minimum = np.min(abs(angle[i,j]-angle_array));
                     index_angle = np.where(abs(angle[i,j]-angle_array) == minimum)[0];
                     data[i,j]=abs(v2[index_angle+array_length])
+
                 else:
                     #data[i,j]=int(viridis(0)[0]);
                     data[i,j]=0
@@ -175,7 +177,6 @@ def marde_a_ben(v1,v2,length) :
 
     #for i in range(0,3*array_length) :
     #    for j in range(0,3*array_length) :
-    #        if (i > centerDown and i < centerUp) :
     #            if (j >=0 and j<array_length) :
     #                data[i,j,0]=int(viridis(100)[0]);
     #                data[i,j,1]=int(viridis(100)[1]);
@@ -186,6 +187,7 @@ def marde_a_ben(v1,v2,length) :
     #                data[i,j,1]=int(viridis(250)[1]);
     #                data[i,j,2]=int(viridis(250)[2]);
 
+    #        if (i > centerDown and i < centerUp) :
 
 
 

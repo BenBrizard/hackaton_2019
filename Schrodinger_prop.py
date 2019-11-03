@@ -13,6 +13,7 @@ from matplotlib import pyplot as pl
 from matplotlib import animation
 from scipy.fftpack import fft,ifft
 from affichage_anneau import *
+#from test_affichage_rect import *
 
 
 
@@ -220,7 +221,7 @@ V0 = 0
 L = 0
 #a = 3 * L
 a = 0
-x0 = 50
+x0 = 120
 V_x = square_barrier(x, a, V0)
 V_x[x < 2] = 1E6
 #V_x[x > 298] = 1E6
@@ -371,7 +372,7 @@ def animate(i):
     psi_x_line4.set_data(S.x, np.real(S.psi_x+S2.psi_x))
     psi_x_line4_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
     psi_x_line4_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
-    psi_x_line5 = ax5.pcolormesh(img)
+    psi_x_line5 = ax5.pcolormesh(img,animated=True)
     #psi_x_line5.set_array(img.ravel())
     #psi_x_line5_imag.set_data(S.x, np.real(S2.psi_x))
 
@@ -381,11 +382,11 @@ def animate(i):
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate,init_func=init,
-                               frames=frames, interval=30, blit=True)
+                               frames=frames, interval=200, blit=True)
 
 
 # uncomment the following line to save the video in mp4 format.  This
 # requires either mencoder or ffmpeg to be installed on your system
 
-#anim.save('schrodinger_rect_fin.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
-plt.show()
+anim.save('schrodinger_anneau_fin.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
+#plt.show()
