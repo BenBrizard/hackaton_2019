@@ -15,6 +15,7 @@ from scipy.fftpack import fft,ifft
 from affichage_anneau import *
 
 
+
 class Schrodinger(object):
     """
     Class which implements a numerical solution of the time-dependent
@@ -213,7 +214,6 @@ q = 1
 dx = 0.2
 N = int(300/dx)
 x = dx * (np.arange(N))
-
 # specify potential
 V0 = 0
 #L = hbar / np.sqrt(2 * m * V0)
@@ -274,12 +274,14 @@ xlim3 = (200,300)
 # top axes show the x-space data
 ymin = 0
 ymax = 1.5
+#ax1 = fig.add_subplot(334, xlim=xlim1,
+#                      ylim=(ymin - 0.2 * (ymax - ymin),
+#                            ymax + 0.2 * (ymax - ymin)))
 ax1 = fig.add_subplot(334, xlim=xlim1,
-                      ylim=(ymin - 0.2 * (ymax - ymin),
-                            ymax + 0.2 * (ymax - ymin)))
-psi_x_line, = ax1.plot([], [], c='r', label=r'$|\psi(x)|$')
-psi_x_line_imag, = ax1.plot([], [], c='b', label=r'$V(x)$')
-psi_x_line_abs, = ax1.plot([], [], c='k', label=r'$V(x)$')
+                      ylim=[-1,1])
+psi_x_line, = ax1.plot([], [], c='r', label=r'$\Re\{\psi(x)\}$')
+psi_x_line_imag, = ax1.plot([], [], c='b', label=r'$\Im\{\psi(x)\}$')
+psi_x_line_abs, = ax1.plot([], [], c='k', label=r'$|\psi(x)|^{2}$')
 
 center_line = ax1.axvline(0, c='k', ls=':',
                           label = r"$x_0 + v_0t$")
@@ -291,8 +293,7 @@ ax1.set_ylabel(r'$|\psi(x)|$')
 
 
 ax2 = fig.add_subplot(332, xlim=xlim2,
-                      ylim=(ymin - 0.2 * (ymax - ymin),
-                            ymax + 0.2 * (ymax - ymin)))
+                      ylim=[-1,1])
 psi_x_line2, = ax2.plot([], [], c='r', label=r'$|\psi(x)|$')
 psi_x_line2_imag, = ax2.plot([], [], c='b', label=r'$V(x)$')
 psi_x_line2_abs, = ax2.plot([], [], c='k', label=r'$V(x)$')
@@ -300,16 +301,14 @@ psi_x_line2_abs, = ax2.plot([], [], c='k', label=r'$V(x)$')
 
 
 ax3 = fig.add_subplot(338, xlim=xlim2,
-                      ylim=(ymin - 0.2 * (ymax - ymin),
-                            ymax + 0.2 * (ymax - ymin)))
+                      ylim=[-1,1])
 psi_x_line3, = ax3.plot([], [], c='r', label=r'$|\psi(x)|$')
 psi_x_line3_imag, = ax3.plot([], [], c='b', label=r'$V(x)$')
 psi_x_line3_abs, = ax3.plot([], [], c='k', label=r'$V(x)$')
 
 
 ax4 = fig.add_subplot(336, xlim=xlim3,
-                      ylim=(ymin - 0.2 * (ymax - ymin),
-                            ymax + 0.2 * (ymax - ymin)))
+                      ylim=[-1,1])
 psi_x_line4, = ax4.plot([], [], c='r', label=r'$|\psi(x)|$')
 psi_x_line4_imag, = ax4.plot([], [], c='b', label=r'$V(x)$')
 psi_x_line4_abs, = ax4.plot([], [], c='k', label=r'$V(x)$')
@@ -318,8 +317,8 @@ psi_x_line4_abs, = ax4.plot([], [], c='k', label=r'$V(x)$')
 #                      ylim=(ymin - 0.2 * (ymax - ymin),
 #                            ymax + 0.2 * (ymax - ymin)))
 ax5 = fig.add_subplot(335)
-#psi_x_line5 = ax5.imshow(np.zeros((1500,1500)))
-psi_x_line5 = ax5.pcolormesh(np.zeros((15,15)))
+#psi_x_line5 = ax5.imshow(N,animated=True)
+psi_x_line5 = ax5.pcolormesh(np.zeros((int(N*dx),int(N*dx))),animated=True)
 #psi_x_line5_imag, = ax5.plot([], [], c='r', label=r'$V(x)$')
 
 ######################################################################
@@ -339,7 +338,7 @@ def init():
     psi_x_line4_abs.set_data([], [])
     #psi_x_line5.set_data([], [])
     #psi_x_line5_imag.set_data([], [])
-    psi_x_line5.set_array(np.array(15))
+    psi_x_line5.set_array(np.array([]))
 
     center_line.set_data([], [])
 
@@ -354,7 +353,9 @@ def animate(i):
     #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*q*S2.A*S2.dx/hbar))
     S.psi_x = np.multiply(S.psi_x,np.exp(1j*S.A*S.dt*S.k*q/S.m))
     S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*S2.A*S2.dt*S2.k*q/S2.m))
-    img = marde_a_ben(S.psi_x,S2.psi_x) ;
+    #img = matriceIntensite(N,N,S.psi_x,S2.psi_x) ;
+    img = marde_a_ben(S.psi_x,S2.psi_x,N)
+    #betterData = cv2.resize(img, dsize=(3*1500,3*1500), interpolation=cv2.INTER_CUBIC)
     #S.psi_x = np.multiply(S.psi_x,np.exp(1j*phi1))
     #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*phi2))
 
@@ -370,7 +371,8 @@ def animate(i):
     psi_x_line4.set_data(S.x, np.real(S.psi_x+S2.psi_x))
     psi_x_line4_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
     psi_x_line4_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
-    psi_x_line5.set_array(img.ravel())
+    psi_x_line5 = ax5.pcolormesh(img)
+    #psi_x_line5.set_array(img.ravel())
     #psi_x_line5_imag.set_data(S.x, np.real(S2.psi_x))
 
     center_line.set_data(2 * [x0 + S.t * p0 / m], [0, 1])
@@ -378,13 +380,12 @@ def animate(i):
     return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
-anim = animation.FuncAnimation(fig, animate, init_func=init,
+anim = animation.FuncAnimation(fig, animate,init_func=init,
                                frames=frames, interval=1, blit=True)
 
 
 # uncomment the following line to save the video in mp4 format.  This
 # requires either mencoder or ffmpeg to be installed on your system
 
-#anim.save('schrodinger_barrier.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
-
-pl.show()
+#anim.save('schrodinger_sphere.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
+plt.show()
