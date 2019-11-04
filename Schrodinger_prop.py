@@ -200,7 +200,8 @@ def square_barrier(x, width, height):
 # Create the animation
 
 # specify time steps and duration
-dt = 0.01
+#dt = 0.01
+dt = 0.5;
 N_steps = 50
 t_max = 120
 frames = int(t_max / float(N_steps * dt))
@@ -212,7 +213,8 @@ q = 1
 
 
 # specify range in x coordinate
-dx = 0.2
+#dx = 0.2
+dx=0.2;
 N = int(300/dx)
 x = dx * (np.arange(N))
 # specify potential
@@ -221,7 +223,7 @@ V0 = 0
 L = 0
 #a = 3 * L
 a = 0
-x0 = 120
+x0 = 50
 V_x = square_barrier(x, a, V0)
 V_x[x < 2] = 1E6
 #V_x[x > 298] = 1E6
@@ -317,9 +319,13 @@ psi_x_line4_abs, = ax4.plot([], [], c='k', label=r'$V(x)$')
 #ax5 = fig.add_subplot(335, xlim=xlim2,
 #                      ylim=(ymin - 0.2 * (ymax - ymin),
 #                            ymax + 0.2 * (ymax - ymin)))
+
+
 ax5 = fig.add_subplot(335)
 #psi_x_line5 = ax5.imshow(N,animated=True)
+
 psi_x_line5 = ax5.pcolormesh(np.zeros((int(N*dx),int(N*dx))),animated=True)
+
 #psi_x_line5_imag, = ax5.plot([], [], c='r', label=r'$V(x)$')
 
 ######################################################################
@@ -339,12 +345,13 @@ def init():
     psi_x_line4_abs.set_data([], [])
     #psi_x_line5.set_data([], [])
     #psi_x_line5_imag.set_data([], [])
+
     psi_x_line5.set_array(np.array([]))
 
     center_line.set_data([], [])
 
-    title.set_text("")
-    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
+    title.set_text("")                                          #psi_x_line5
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4,psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 def animate(i):
     S.time_step(dt, N_steps)
@@ -355,7 +362,8 @@ def animate(i):
     S.psi_x = np.multiply(S.psi_x,np.exp(1j*S.A*S.dt*S.k*q/S.m))
     S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*S2.A*S2.dt*S2.k*q/S2.m))
     #img = matriceIntensite(N,N,S.psi_x,S2.psi_x) ;
-    img = marde_a_ben(S.psi_x,S2.psi_x,N)
+
+    img = two_D_plot(S.psi_x,S2.psi_x,N)
     #betterData = cv2.resize(img, dsize=(3*1500,3*1500), interpolation=cv2.INTER_CUBIC)
     #S.psi_x = np.multiply(S.psi_x,np.exp(1j*phi1))
     #S2.psi_x = np.multiply(S2.psi_x,np.exp(1j*phi2))
@@ -372,21 +380,22 @@ def animate(i):
     psi_x_line4.set_data(S.x, np.real(S.psi_x+S2.psi_x))
     psi_x_line4_imag.set_data(S.x, np.imag(S.psi_x+S2.psi_x))
     psi_x_line4_abs.set_data(S.x, abs(S.psi_x+S2.psi_x))
+
     psi_x_line5 = ax5.pcolormesh(img,animated=True)
     #psi_x_line5.set_array(img.ravel())
     #psi_x_line5_imag.set_data(S.x, np.real(S2.psi_x))
 
     center_line.set_data(2 * [x0 + S.t * p0 / m], [0, 1])
-
-    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4, psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
+                                                                #psi_x_line5
+    return (psi_x_line, psi_x_line2, psi_x_line3, psi_x_line4,psi_x_line5, psi_x_line_imag, psi_x_line2_imag, psi_x_line3_imag, psi_x_line4_imag, psi_x_line_abs, psi_x_line2_abs, psi_x_line3_abs, psi_x_line4_abs, center_line, title)
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate,init_func=init,
-                               frames=frames, interval=200, blit=True)
+                               frames=frames, interval=2000, blit=True)
 
 
 # uncomment the following line to save the video in mp4 format.  This
 # requires either mencoder or ffmpeg to be installed on your system
 
-anim.save('schrodinger_anneau_fin.mp4', fps=15, extra_args=['-vcodec', 'libx264'])
-#plt.show()
+#anim.save(r'C:\Users\Benoit Brizard\Documents\hackathon\schrodinger_anneau_fin.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+plt.show()
